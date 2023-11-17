@@ -14,4 +14,5 @@ contract ExampleVerificationContract is IVerificationContract {
             return false;
         }
     }
+    // TODO do one for owning an NFT
 }

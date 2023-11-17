@@ -39,7 +39,7 @@ $ forge fmt
 $ forge snapshot
 ```
 
-### Anvil
+### Anvil (LOCAL NETWORK!!)
 
 ```shell
 $ anvil
@@ -77,5 +77,5 @@ FUNDING_RECIPIENT=
 ```
 3. Call `forge script`
 ```
-
+ forge script --rpc-url  $RPC --broadcast  script/Deploy.s.sol:PosterScript
 ```

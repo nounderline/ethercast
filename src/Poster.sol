@@ -52,4 +52,6 @@ contract Poster {
 
         emit NewPost(msg.sender, content, tags, verificationContract);
     }
+
+    // properly handle failed since this contract will own the eth in that case.
 }

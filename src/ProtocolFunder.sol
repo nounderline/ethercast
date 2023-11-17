@@ -22,9 +22,11 @@ contract ProtocolFunder {
 
         if (currentAmountFunded >= payableMax) {
             emit FundingExceeded();
+            // TODO this should revert
         }
 
         // using memory cache over storage for gas
+        // TODO pay -> reward/award
         payToDate = currentAmountFunded + msg.value;
         emit FundingReceived(msg.value, currentAmountFunded + msg.value);
     }
