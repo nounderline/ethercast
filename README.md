@@ -64,3 +64,18 @@ $ forge --help
 $ anvil --help
 $ cast --help
 ```
+
+
+### HOW TO DEPLOY
+
+1. Set `RPC` env var
+2. Populate all env vars in `.env.sample`
+```
+PRIVATE_KEY=
+FUNDING_MAX=
+FUNDING_RECIPIENT=
+```
+3. Call `forge script`
+```
+
+```
