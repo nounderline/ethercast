@@ -1,0 +1,20 @@
+{
+    "nouns": {
+        "title": "Nouns",
+        "image": "https://warpcast.com/~/channel-images/nouns.png",
+        "description": "A cozy space to discuss Nouns and other nounish subjects",
+        "contract": "0x4B8Ab96e005EAD92cbf853957F30126B43dB3f0b"
+    },
+    "devconnect": {
+        "title": "Devconnect",
+        "description": "Devconnect is a week-long gathering of independent Ethereum events.",
+        "image": "https://warpcast.com/~/channel-images/devconnect.jpg",
+        "contract": "0x7E5F254cbE8839CA1f9340592ba180746dbe4815"
+    },
+    "optimism": {
+        "title": "Optimism",
+        "description": "Discussion about Optimism and the superchain",
+        "image": "https://warpcast.com/~/channel-images/op-stack.png",
+        "contract": "0xC3a61198751671aC25134d382B14843CFE4a8209"
+    }
+}
