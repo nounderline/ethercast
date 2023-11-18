@@ -5,29 +5,27 @@ import {Address} from "@openzeppelin/utils/Address.sol";
 
 contract ProtocolFunder {
     address payable immutable recipient;
-    uint256 immutable payableMax;
-    uint256 payToDate;
+    uint256 immutable rewardableMax;
+    uint256 rewardToDate;
 
-    event FundingReceived(uint256 amountFunded, uint256 payToDate);
+    event FundingReceived(uint256 amountFunded, uint256 rewardToDate);
 
-    event FundingExceeded();
+    error FundingExceeded();
 
-    constructor(address _recipient, uint256 _payableMax) {
+    constructor(address _recipient, uint256 _rewardableMax) {
         recipient = payable(_recipient);
-        payableMax = _payableMax;
+        rewardableMax = _rewardableMax;
     }
 
     receive() external payable {
-        uint256 currentAmountFunded = payToDate;
+        uint256 currentAmountFunded = rewardToDate;
 
-        if (currentAmountFunded >= payableMax) {
-            emit FundingExceeded();
-            // TODO this should revert
+        if (currentAmountFunded >= rewardableMax) {
+            revert FundingExceeded();
         }
 
         // using memory cache over storage for gas
-        // TODO pay -> reward/award
-        payToDate = currentAmountFunded + msg.value;
+        rewardToDate = currentAmountFunded + msg.value;
         emit FundingReceived(msg.value, currentAmountFunded + msg.value);
     }
 
