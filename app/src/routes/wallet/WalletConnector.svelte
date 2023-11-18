@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { connect, type ConnectResult } from '@wagmi/core';
 	import { getWagmiContext } from '../../lib/wagmi';
+	import { baseGoerli } from 'viem/chains';
 
 	export let onConnect = (result: ConnectResult) => {};
 
@@ -11,6 +12,7 @@
 
 		try {
 			const result = await connect({
+				chainId: baseGoerli.id,
 				connector
 			});
 

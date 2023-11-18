@@ -1,11 +1,20 @@
+<script context="module">
+	export const newCastStore = writable(null);
+</script>
+
 <script lang="ts">
-	import { enhance } from '$app/forms';
-	import { page } from '$app/stores';
-	import { configureChains, disconnect, mainnet, signMessage } from '@wagmi/core';
+	import {
+		configureChains,
+		mainnet,
+		prepareWriteContract,
+		waitForTransaction,
+		writeContract
+	} from '@wagmi/core';
 	import { publicProvider } from '@wagmi/core/providers/public';
-	import { fade, slide } from 'svelte/transition';
 	import { getWagmiContext } from '../../lib/wagmi';
-	import Temporary from '$lib/ui/Temporary.svelte';
+	import { PUBLIC_POSTER_CONTRACT } from '$env/static/public';
+	import { writable } from 'svelte/store';
+	import { fly } from 'svelte/transition';
 
 	const { chains, publicClient, webSocketPublicClient } = configureChains(
 		[mainnet],
@@ -13,53 +22,103 @@
 	);
 
 	let form: HTMLFormElement;
-	let description = '';
+	let text = '';
 
-	let sigMessage = '';
-	let sigSignature = '';
+	let alert = '';
+
 	$: address = $account.address;
 
 	const { account, config, client } = getWagmiContext();
 
+	const ABI = [
+		{
+			name: 'cast',
+			type: 'function',
+			stateMutability: 'payable',
+			inputs: [
+				{ type: 'string', name: 'content' },
+				{ type: 'string[]', name: 'tags' },
+				{ type: 'address', name: 'verificationContract' }
+			],
+			outputs: []
+		},
+		{
+			name: 'NewPost',
+			type: 'event',
+			inputs: [
+				{ type: 'address', name: 'user', indexed: true },
+				{ type: 'string', name: 'content' },
+				{ type: 'string[]', name: 'tags', indexed: true },
+				{ type: 'address', name: 'verificationAddress', indexed: true }
+			]
+		}
+	];
+
 	async function sign() {
-		const struct = {
-			description: description || '',
-			contributor: $account.address,
-			time: new Date().toISOString()
+		alert = `Please open your wallet to confirm a transaction.`;
+
+		const config = await prepareWriteContract({
+			// @ts-ignore
+			address: PUBLIC_POSTER_CONTRACT,
+			abi: ABI,
+			functionName: 'cast',
+			args: [text, [], '0x0000000000000000000000000000000000000000']
+		});
+
+		const write = await writeContract(config);
+
+		alert = `Waiting for confirmation...`;
+
+		const wait = await waitForTransaction({ hash: write.hash });
+
+		// @ts-ignore
+		$newCastStore = {
+			// @ts-ignore
+			hash: write.hash
 		};
 
-		sigMessage = JSON.stringify(struct, Object.keys(struct).sort());
-		sigSignature = await signMessage({ message: sigMessage });
+		alert = 'Cast successful!';
 
-		return sigSignature;
+		setTimeout(() => {
+			alert = '';
+		}, 1000);
 	}
 
 	async function handleSubmitPress(e) {
 		e.preventDefault();
 
-		await sign();
+		await sign().catch((err) => {
+			writingStatus = '';
 
-		form.requestSubmit();
+			throw err;
+		});
+
+		text = '';
 	}
 </script>
 
-<form method="POST" bind:this={form} use:enhance>
-	<input type="hidden" name="sig_signature" value={sigSignature} />
-	<input type="hidden" name="sig_message" value={sigMessage} />
-	<input type="hidden" name="sig_address" value={address} />
-
-	<textarea
-		placeholder="Your message to the ether"
-		name="description"
-		bind:value={description}
-		class="textarea w-full resize-none"
-		rows="4"
-	/>
-
+{#if alert}
+	<div class="alert alert-info" transition:fly>{alert}</div>
 	<div class="h-2" />
+{/if}
 
-	<div>
-		<button class="btn btn-primary" type="submit" on:click={handleSubmitPress}>Cast</button>
-		<span class="opacity-50 ml-2">You will be asked to sign the message</span>
+<div class="card card-compact shadow-md border-gray-200 border-[1px]">
+	<div class="card-body">
+		<form method="POST" bind:this={form} on:submit={handleSubmitPress}>
+			<textarea
+				placeholder="Your message to the ether"
+				name="text"
+				bind:value={text}
+				class="textarea textarea-lg w-full resize-none"
+				rows="2"
+			/>
+
+			<div class="h-2" />
+
+			<div>
+				<button class="btn btn-primary" type="submit">Cast</button>
+				<span class="opacity-50 ml-2">into the ethernity!</span>
+			</div>
+		</form>
 	</div>
-</form>
+</div>

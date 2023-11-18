@@ -4,7 +4,7 @@
 	const { config, account, accountDisplay, client } = getWagmiContext();
 </script>
 
-<div class="flex flex-row items-center justify-between my-4">
+<div class="flex flex-row items-center justify-between py-4">
 	<div>
 		<a href="/" class="uppercase font-bold">Ethercast</a>
 	</div>

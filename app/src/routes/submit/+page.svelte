@@ -2,6 +2,7 @@
 	import { page } from '$app/stores';
 	import { PUBLIC_POSTER_CONTRACT } from '$env/static/public';
 	import CastForm from '$lib/ui/CastForm.svelte';
+	import Casts from '$lib/ui/Casts.svelte';
 	import Temporary from '$lib/ui/Temporary.svelte';
 	import { formatShortAddress, getWagmiContext } from '$lib/wagmi';
 	import { onMount } from 'svelte';
@@ -80,10 +81,6 @@
 			return obj;
 		});
 	});
-
-	$: {
-		console.log(logs);
-	}
 </script>
 
 {#if $page.form?.success}
@@ -92,37 +89,8 @@
 	</Temporary>
 {/if}
 
-<div class="card bg-base-300">
-	<div class="card-body">
-		<CastForm />
-	</div>
-</div>
+<CastForm />
 
 <div class="h-4" />
 
-<div class="flex flex-col gap-2">
-	{#each logs as log}
-		<div class="card bg-base-300">
-			<div class="card-body flex-row gap-4">
-				<img
-					src={log.avatar || `https://i.pravatar.cc/150?u=${log.address}`}
-					class="w-12 aspect-square rounded-full"
-					on:error={(e) => {
-						e.target.src = `https://i.pravatar.cc/150?u=${log.address}`;
-					}}
-				/>
-				<div>
-					<div>
-						<a href="https://etherscan.io/address/${log.address}" class="font-bold">
-							{log.ens || formatShortAddress(log.address)}
-						</a>
-						at <a href="https://goerli.basescan.org/block/{log.blockNumber}">#{log.blockNumber}</a>
-					</div>
-					<div>
-						{log.content}
-					</div>
-				</div>
-			</div>
-		</div>
-	{/each}
-</div>
+<Casts />
