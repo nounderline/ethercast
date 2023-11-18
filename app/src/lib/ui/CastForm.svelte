@@ -15,6 +15,11 @@
 	import { PUBLIC_POSTER_CONTRACT } from '$env/static/public';
 	import { writable } from 'svelte/store';
 	import { fly } from 'svelte/transition';
+	import { EthercastPosterABI } from '$lib/ethercast.js';
+	import { page } from '$app/stores';
+	import Data from '../../routes/channels/data.json';
+
+	$: channelDetail = Data[$page.params.channel];
 
 	const { chains, publicClient, webSocketPublicClient } = configureChains(
 		[mainnet],
@@ -30,29 +35,7 @@
 
 	const { account, config, client } = getWagmiContext();
 
-	const ABI = [
-		{
-			name: 'cast',
-			type: 'function',
-			stateMutability: 'payable',
-			inputs: [
-				{ type: 'string', name: 'content' },
-				{ type: 'string[]', name: 'tags' },
-				{ type: 'address', name: 'verificationContract' }
-			],
-			outputs: []
-		},
-		{
-			name: 'NewPost',
-			type: 'event',
-			inputs: [
-				{ type: 'address', name: 'user', indexed: true },
-				{ type: 'string', name: 'content' },
-				{ type: 'string[]', name: 'tags', indexed: true },
-				{ type: 'address', name: 'verificationAddress', indexed: true }
-			]
-		}
-	];
+	const ABI = EthercastPosterABI;
 
 	async function sign() {
 		alert = `Please open your wallet to confirm a transaction.`;
@@ -62,8 +45,10 @@
 			address: PUBLIC_POSTER_CONTRACT,
 			abi: ABI,
 			functionName: 'cast',
-			args: [text, [], '0x0000000000000000000000000000000000000000']
+			args: [text, [], channelDetail?.contract || '0x0000000000000000000000000000000000000000']
 		});
+
+		console.log(config);
 
 		const write = await writeContract(config);
 
@@ -77,21 +62,13 @@
 			hash: write.hash
 		};
 
-		alert = 'Cast successful!';
-
-		setTimeout(() => {
-			alert = '';
-		}, 1000);
+		alert = '';
 	}
 
 	async function handleSubmitPress(e) {
 		e.preventDefault();
 
-		await sign().catch((err) => {
-			writingStatus = '';
-
-			throw err;
-		});
+		await sign();
 
 		text = '';
 	}
