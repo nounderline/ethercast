@@ -4,7 +4,7 @@ pragma solidity ^0.8.21;
 import {IVerificationContract} from "./IVerificationContract.sol";
 
 interface INFTBalanceOf {
-    function balanceOf(address owner) external returns (uint256);
+    function balanceOf(address owner) external view returns (uint256);
 }
 
 contract ExampleVerificationContract is IVerificationContract {
@@ -17,7 +17,7 @@ contract ExampleVerificationContract is IVerificationContract {
     /**
      * @inheritdoc IVerificationContract
      */
-    function verify(address caster) external pure returns (bool) {
+    function verify(address caster) external view returns (bool) {
         if (nft.balanceOf(caster) > 0) {
             return true;
         } else {

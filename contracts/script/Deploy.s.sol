@@ -5,6 +5,7 @@ import {Script, console2} from "forge-std/Script.sol";
 import {Poster} from "../src/Poster.sol";
 import {ExampleVerificationContract} from "../src/ExampleVerificationContract.sol";
 import {ProtocolFunder} from "../src/ProtocolFunder.sol";
+import {NounsNFT} from "../src/NFT.sol";
 
 contract PosterScript is Script {
     function setUp() public {}
@@ -16,7 +17,10 @@ contract PosterScript is Script {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        ExampleVerificationContract verificationContract = new ExampleVerificationContract();
+        NounsNFT nft = new NounsNFT();
+
+        ExampleVerificationContract verificationContract = new ExampleVerificationContract(address(nft));
+
         ProtocolFunder protocolFunder = new ProtocolFunder(fundingRecipient, fundingMax);
 
         Poster poster = new Poster(address(protocolFunder));
@@ -24,6 +28,7 @@ contract PosterScript is Script {
         vm.stopBroadcast();
 
         console2.log("CONTRACT ADDRESSES");
+        console2.log("NFT contract: %s", address(nft));
         console2.log("ExampleVerificationContract: %s", address(verificationContract));
         console2.log("ProtocolFunder: %s", address(protocolFunder));
         console2.log("Poster: %s", address(poster));

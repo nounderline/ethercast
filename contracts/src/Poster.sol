@@ -42,7 +42,7 @@ contract Poster {
                 emit FundingSucceeded();
             } else {
                 // If failed to reward protocolFunder, send ETH back to msg.sender
-                Address.sendValue(msg.sender, msg.value);
+                Address.sendValue(payable(msg.sender), msg.value);
                 emit FundingFailed();
             }
         }
