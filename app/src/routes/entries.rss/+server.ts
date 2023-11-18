@@ -41,13 +41,18 @@ export async function GET(event) {
 
 	const events = await getContractEvents();
 
+	events.reverse();
+
+	const originDate = new Date('2023-11-18 00:00:00');
+	const originBlock = 12560000n;
+
 	events.forEach((event) => {
 		feed.addItem({
 			guid: `${event.address}@${event.blockNumber}`,
 			title: event.content,
 			author: [{ name: event.address, email: event.address }],
 			link: '#',
-			date: new Date()
+			date: new Date(originDate.getTime() + Number(originBlock + (event.blockNumber || 0)) * 1000)
 		});
 	});
 
