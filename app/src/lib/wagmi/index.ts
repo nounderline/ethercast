@@ -1,11 +1,19 @@
-import { PUBLIC_WALLET_CONNECT_PROJECT_ID } from '$env/static/public';
+import {
+	PUBLIC_BASE_GOERLI_ALCHEMY_API_KEY,
+	PUBLIC_CHAIN_ID,
+	PUBLIC_MAINNET_ALCHEMY_API_KEY,
+	PUBLIC_WALLET_CONNECT_PROJECT_ID
+} from '$env/static/public';
 import { configureChains, createConfig, getAccount, mainnet } from '@wagmi/core';
 import { CoinbaseWalletConnector } from '@wagmi/core/connectors/coinbaseWallet';
 import { InjectedConnector } from '@wagmi/core/connectors/injected';
 import { WalletConnectConnector } from '@wagmi/core/connectors/walletConnect';
 import { publicProvider } from '@wagmi/core/providers/public';
+import { alchemyProvider } from '@wagmi/core/providers/alchemy';
 import { getContext } from 'svelte';
 import { derived, readable } from 'svelte/store';
+import { createPublicClient, http } from 'viem';
+import { baseGoerli } from 'viem/chains';
 import { getEnsName } from 'viem/ens';
 
 export function formatShortAddress(addr: `0x${string}` | string) {
@@ -14,16 +22,21 @@ export function formatShortAddress(addr: `0x${string}` | string) {
 
 export const createWagmiContext = ({ autoConnect = false } = {}) => {
 	const { chains, publicClient, webSocketPublicClient } = configureChains(
-		[mainnet],
-		[publicProvider()]
+		[baseGoerli],
+		[alchemyProvider({ apiKey: PUBLIC_BASE_GOERLI_ALCHEMY_API_KEY })]
 	);
 
-	const client = publicClient({ chainId: mainnet.id });
+	const client = publicClient({ chainId: baseGoerli.id });
+
+	const mainnetClient = createPublicClient({
+		chain: mainnet,
+		transport: http(`https://eth-mainnet.g.alchemy.com/v2/${PUBLIC_MAINNET_ALCHEMY_API_KEY}`)
+	});
 
 	const config = createConfig({
 		autoConnect,
 		publicClient,
-		//webSocketPublicClient,
+		webSocketPublicClient,
 		connectors: [
 			new InjectedConnector({ chains }),
 			new WalletConnectConnector({
@@ -76,7 +89,8 @@ export const createWagmiContext = ({ autoConnect = false } = {}) => {
 		account,
 		accountDisplay,
 		accountENS,
-		client
+		client,
+		mainnetClient
 	};
 };
 
